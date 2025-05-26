@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Научный калькулятор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .expression {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+
+        .result {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: right;
+            word-wrap: break-word;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .scientific-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .operator {
+            background: rgba(255, 152, 0, 0.8);
+        }
+
+        .operator:hover {
+            background: rgba(255, 152, 0, 1);
+        }
+
+        .equals {
+            background: rgba(0, 122, 255, 0.8);
+            grid-column: span 2;
+        }
+
+        .equals:hover {
+            background: rgba(0, 122, 255, 1);
+        }
+
+        .clear {
+            background: rgba(255, 59, 48, 0.8);
+        }
+
+        .clear:hover {
+            background: rgba(255, 59, 48, 1);
+        }
+
+        .scientific {
+            background: rgba(52, 199, 89, 0.8);
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        .scientific:hover {
+            background: rgba(52, 199, 89, 1);
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .history {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            color: #ccc;
+            font-size: 12px;
+            margin-bottom: 5px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="expression" id="expression"></div>
+            <div class="result" id="result">0</div>
+        </div>
+
+        <div class="scientific-buttons">
+            <button class="scientific" onclick="addToExpression('sin(')">sin</button>
+            <button class="scientific" onclick="addToExpression('cos(')">cos</button>
+            <button class="scientific" onclick="addToExpression('tan(')">tan</button>
+            <button class="scientific" onclick="addToExpression('sqrt(')">√</button>
+            <button class="scientific" onclick="addToExpression('log(')">log</button>
+            <button class="scientific" onclick="addToExpression('ln(')">ln</button>
+            <button class="scientific" onclick="addToExpression('pi')">π</button>
+            <button class="scientific" onclick="addToExpression('e')">e</button>
+            <button class="scientific" onclick="addToExpression('(')">(</button>
+            <button class="scientific" onclick="addToExpression(')')">)</button>
+            <button class="scientific" onclick="addToExpression('^')">x^y</button>
+            <button class="scientific" onclick="addToExpression('abs(')">|x|</button>
+        </div>
+
+        <div class="buttons">
+            <button class="clear" onclick="clearAll()">C</button>
+            <button class="clear" onclick="clearEntry()">CE</button>
+            <button onclick="backspace()">⌫</button>
+            <button class="operator" onclick="addToExpression('/')">/</button>
+
+            <button onclick="addToExpression('7')">7</button>
+            <button onclick="addToExpression('8')">8</button>
+            <button onclick="addToExpression('9')">9</button>
+            <button class="operator" onclick="addToExpression('*')">×</button>
+
+            <button onclick="addToExpression('4')">4</button>
+            <button onclick="addToExpression('5')">5</button>
+            <button onclick="addToExpression('6')">6</button>
+            <button class="operator" onclick="addToExpression('-')">-</button>
+
+            <button onclick="addToExpression('1')">1</button>
+            <button onclick="addToExpression('2')">2</button>
+            <button onclick="addToExpression('3')">3</button>
+            <button class="operator" onclick="addToExpression('+')">+</button>
+
+            <button class="zero" onclick="addToExpression('0')">0</button>
+            <button onclick="addToExpression('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+
+        <div class="history">
+            <div class="history-title">История вычислений</div>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentExpression = '';
+        let lastResult = '0';
+        let history = [];
+
+        function updateDisplay() {
+            document.getElementById('expression').textContent = currentExpression;
+            document.getElementById('result').textContent = lastResult;
+        }
+
+        function addToExpression(value) {
+            currentExpression += value;
+            updateDisplay();
+        }
+
+        function clearAll() {
+            currentExpression = '';
+            lastResult = '0';
+            updateDisplay();
+        }
+
+        function clearEntry() {
+            currentExpression = '';
+            updateDisplay();
+        }
+
+        function backspace() {
+            currentExpression = currentExpression.slice(0, -1);
+            updateDisplay();
+        }
+
+        async function calculate() {
+            if (!currentExpression) return;
+
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        expression: currentExpression
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    lastResult = data.error;
+                    document.getElementById('result').classList.add('error');
+                } else {
+                    lastResult = data.result.toString();
+                    document.getElementById('result').classList.remove('error');
+                    
+                    // Добавляем в историю
+                    addToHistory(currentExpression, lastResult);
+                }
+                
+                updateDisplay();
+            } catch (error) {
+                lastResult = 'Ошибка соединения';
+                document.getElementById('result').classList.add('error');
+                updateDisplay();
+            }
+        }
+
+        function addToHistory(expression, result) {
+            history.unshift({ expression, result });
+            if (history.length > 5) {
+                history = history.slice(0, 5);
+            }
+            updateHistory();
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `${item.expression} = ${item.result}`;
+                historyItem.onclick = () => {
+                    currentExpression = item.result.toString();
+                    updateDisplay();
+                };
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Поддержка клавиатуры
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9' || key === '.') {
+                addToExpression(key);
+            } else if (key === '+' || key === '-' || key === '/' || key === '*') {
+                addToExpression(key);
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === '(') {
+                addToExpression('(');
+            } else if (key === ')') {
+                addToExpression(')');
+            }
+        });
+
+        // Инициализация
+        updateDisplay();
+    </script>
+</body>
+</html>
